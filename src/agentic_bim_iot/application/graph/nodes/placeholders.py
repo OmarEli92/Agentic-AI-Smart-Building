@@ -7,4 +7,4 @@ class NotImplementedNode:
         self._route = route
     
     def __call__(self, state: AgentState) -> dict[str, object]:
-        return {"final_answer": f"Route {self._route} was selected correctly,but its component is not implemented yet"}
+        return {"final_answer": f"Route '{self._route}' was selected correctly, but its component is not implemented yet."}
