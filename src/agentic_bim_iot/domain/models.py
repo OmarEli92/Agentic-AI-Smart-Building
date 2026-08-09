@@ -7,6 +7,7 @@ class SupervisorDecision(BaseModel):
     """It represents the structured decision produced by the LLM based Supervisor
     which is the agent who interpet the intent of a request from the Facility Manager.
     It also defines a contract of how the output should be structured"""
+    
     model_config = ConfigDict(extra="forbid")
     intent: Intent = Field(
         description="Primary intent of the Facility Manager request"
@@ -54,5 +55,4 @@ class SupervisorDecision(BaseModel):
             raise ValueError(
                 "Explicit actuation must also be operational."
             )
-
         return self

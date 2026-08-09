@@ -3,7 +3,7 @@ from enum import StrEnum
 
 class Intent(StrEnum):
     """
-    The Intent class represents what the Facility Manager wants
+    The Intent class represents what the Facility Manager wants.
     Whenever the Supervisor LLM receives a request from the Facility
     Managaer it recognises one of the following objectives
     """
