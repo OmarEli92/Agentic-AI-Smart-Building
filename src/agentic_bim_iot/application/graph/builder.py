@@ -15,7 +15,7 @@ def create_route_nodes(dependencies: GraphDependencies) -> dict[Route, Node]:
     """It defines the routes with the respective nodes"""
     
     return{
-        Route.BIM_AGENT: BIMInformationNode(dependencies.semantic_service),
+        Route.BIM_AGENT: BIMInformationNode(dependencies.bim_query_service),
         Route.TELEMETRY_AGENT: NotImplementedNode(Route.TELEMETRY_AGENT),
         Route.COMFORT_ENGINE: NotImplementedNode(Route.COMFORT_ENGINE),
         Route.PLANNING_AGENT: NotImplementedNode(Route.PLANNING_AGENT),

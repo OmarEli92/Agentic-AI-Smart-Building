@@ -15,10 +15,7 @@ class FakeSemanticQueryService:
     
 
 class FailingSemanticQueryService:
-    def answer_bim_query(
-        self,
-        natural_language_query: str,
-    ) -> SemanticQueryResult:
+    def answer_bim_query(self, natural_language_query: str) -> SemanticQueryResult:
         raise SemanticServiceError(
             "GraphDB is unavailable."
         )
