@@ -2,7 +2,7 @@ Run the Project
 
 1. Clone the repository
 
-git clone <REPOSITORY_URL>
+git clone LINK_DELLA_REPO
 cd Agentic-AI-Smart-Building
 
 2. Create and activate a virtual environment
