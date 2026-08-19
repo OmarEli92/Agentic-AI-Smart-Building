@@ -7,7 +7,6 @@ class SupervisorDecision(BaseModel):
     """It represents the structured decision produced by the LLM based Supervisor
     which is the agent who interpet the intent of a request from the Facility Manager.
     It also defines a contract of how the output should be structured"""
-    
     model_config = ConfigDict(extra="forbid")
     intent: Intent = Field(
         description="Primary intent of the Facility Manager request"
@@ -17,23 +16,39 @@ class SupervisorDecision(BaseModel):
     )
     building_reference: str | None = None
     floor_reference: str | None = None
-    room_reference: str | None = None
+    room_reference: str | None = Field(
+        default=None,
+        description=(
+            "Room explicitly mentioned in the user request. "
+            "Example: in 'What is the temperature in the Kitchen?' "
+            "the value is 'Kitchen'."
+        )
+    )
     request_is_operational: bool = Field(
-        description="True if the request may change the physical environment."
+        description="True if the request may change the physical environment.",
+        default=False
     )
     request_is_explicit_actuation: bool = Field(
-        description="True if the user explicitly specified the physical action."
+        description="True if the user explicitly specified the physical action.",
+        default=False
     )
     clarification_required: bool = Field(
-        description="True if execution cannot safely continue without clarification."
+        description="True if execution cannot safely continue without clarification.",
+        default=False
     )
     clarification_question: str | None = None
+    measurement_reference: str | None = Field(
+    default=None,
+    description=("Measurement explicitly requested by the user. "
+            "Examples: temperature, humidity, brightness. "
+            "In 'What is the temperature in the Kitchen?' "
+            "the value is 'temperature'.")
+    )
 
 
     @model_validator(mode="after")
     def validate_decision_consistency(self) -> Self:
         """This method checks the coherence and consistency of the intentions and routes """
-        #Verify thta there is consistency between intentions and routes
         if self.clarification_required:
             if self.route is not Route.REQUEST_CLARIFICATION:
                 raise ValueError(

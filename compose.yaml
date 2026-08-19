@@ -30,6 +30,45 @@ services:
       - neo4j_data:/data
       - neo4j_logs:/logs
       - neo4j_plugins:/plugins
+  
+  thingsboard-postgres:
+    image: postgres:18
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: thingsboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${THINGSBOARD_POSTGRES_PASSWORD}"
+
+    volumes:
+      - thingsboard_postgres_data:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d thingsboard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+
+  thingsboard-ce:
+    image: thingsboard/tb-node:4.3.1.3
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+      - "1883:1883"
+
+    environment:
+      TB_SERVICE_ID: tb-ce-node
+      SPRING_DATASOURCE_URL: jdbc:postgresql://thingsboard-postgres:5432/thingsboard
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "${THINGSBOARD_POSTGRES_PASSWORD}"
+      TB_QUEUE_TYPE: in-memory
+
+    depends_on:
+      thingsboard-postgres:
+        condition: service_healthy
 
 
 volumes:
@@ -37,3 +76,4 @@ volumes:
   neo4j_data:
   neo4j_logs:
   neo4j_plugins:
+  thingsboard_postgres_data:

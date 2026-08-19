@@ -1,4 +1,5 @@
 from langgraph.graph import END, START, StateGraph
+from agentic_bim_iot.application.graph.nodes.telemetry import TelemetryInformationNode
 from agentic_bim_iot.application.graph.routing import route_after_supervisor, route_after_supervisor
 from agentic_bim_iot.application.interfaces.supervisor import SuperVisor
 from agentic_bim_iot.application.graph.nodes.placeholders import NotImplementedNode
@@ -16,7 +17,7 @@ def create_route_nodes(dependencies: GraphDependencies) -> dict[Route, Node]:
     
     return{
         Route.BIM_AGENT: BIMInformationNode(dependencies.bim_query_service),
-        Route.TELEMETRY_AGENT: NotImplementedNode(Route.TELEMETRY_AGENT),
+        Route.TELEMETRY_AGENT: TelemetryInformationNode(dependencies.sensor_resolver, dependencies.telemetry_service),
         Route.COMFORT_ENGINE: NotImplementedNode(Route.COMFORT_ENGINE),
         Route.PLANNING_AGENT: NotImplementedNode(Route.PLANNING_AGENT),
         Route.COMMAND_STRUCTURING: NotImplementedNode(Route.COMMAND_STRUCTURING),

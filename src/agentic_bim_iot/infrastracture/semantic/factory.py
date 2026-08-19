@@ -1,21 +1,28 @@
 from contextlib import ExitStack
+from dataclasses import dataclass
 from typing import assert_never
 from langchain_core.language_models.chat_models import BaseChatModel
 from neo4j import GraphDatabase
 from pydantic import SecretStr
 from rdflib.contrib.graphdb.client import GraphDBClient
 from agentic_bim_iot.application.interfaces.semantic import BIMQueryService
+from agentic_bim_iot.application.interfaces.sensor import SensorResolver
 from agentic_bim_iot.config.settings import SemanticBackend,Settings
 from agentic_bim_iot.infrastracture.semantic.graphdb.adapter import GraphDBBIMQueryAdapter
 from agentic_bim_iot.infrastracture.semantic.graphdb.repository import GraphDBRepository
+from agentic_bim_iot.infrastracture.semantic.graphdb.sensor_resolver import GraphDBSensorResolver
 from agentic_bim_iot.infrastracture.semantic.neo4j.adapter import Neo4jBIMQueryAdapter
+from agentic_bim_iot.infrastracture.semantic.neo4j.sensor_resolver import Neo4jSensorResolver
 
-
-def create_bim_query_service(settings: Settings,chat_model: BaseChatModel,resources: ExitStack) -> BIMQueryService:
+@dataclass(frozen=True, slots=True)
+class SemanticServices:
+    bim_query_service: BIMQueryService
+    sensor_resolver: SensorResolver
+    
+def create_semantic_services(settings: Settings,chat_model: BaseChatModel,resources: ExitStack) -> BIMQueryService:
     """
     Create the configured BIM semantic backend.. graphDB and neo4j are provided
     """
-
     match settings.semantic_backend:
         case SemanticBackend.GRAPHDB:
             return _create_graphdb_service(settings=settings,chat_model=chat_model,resources=resources)
@@ -29,11 +36,13 @@ def create_bim_query_service(settings: Settings,chat_model: BaseChatModel,resour
 def _create_graphdb_service(*,settings: Settings,chat_model: BaseChatModel,resources: ExitStack) -> BIMQueryService:
     credentials = _get_credentials(username=settings.graphdb_username, password=settings.graphdb_password)
     if credentials is None:
-        client = resources.enter_context(GraphDBClient(settings.graphdb_url,timeout=settings.graphdb_timeout_seconds,))
+        client = resources.enter_context(GraphDBClient(settings.graphdb_url,timeout=settings.graphdb_timeout_seconds))
     else:
-        client = resources.enter_context(GraphDBClient(settings.graphdb_url,auth=credentials,timeout=settings.graphdb_timeout_seconds,))
+        client = resources.enter_context(GraphDBClient(settings.graphdb_url,auth=credentials,timeout=settings.graphdb_timeout_seconds))
     repository = GraphDBRepository(client=client,repository_id=settings.graphdb_repository,)
-    return GraphDBBIMQueryAdapter(chat_model=chat_model,graph_store=repository,max_repair_retries=(settings.graphdb_max_repair_retries))
+    bim_query_service = GraphDBBIMQueryAdapter(chat_model=chat_model,graph_store=repository,max_repair_retries=settings.graphdb_max_repair_retries)
+    sensor_resolver = GraphDBSensorResolver(chat_model=chat_model,graph_store=repository,max_repair_retries=settings.graphdb_max_repair_retries)
+    return SemanticServices(bim_query_service=bim_query_service,sensor_resolver=sensor_resolver)
 
 
 def _create_neo4j_service(*,settings: Settings,chat_model: BaseChatModel,resources: ExitStack) -> BIMQueryService:
@@ -43,8 +52,9 @@ def _create_neo4j_service(*,settings: Settings,chat_model: BaseChatModel,resourc
     else:
         driver = resources.enter_context(GraphDatabase.driver(settings.neo4j_uri,auth=credentials,))
     driver.verify_connectivity()
-    return Neo4jBIMQueryAdapter(chat_model=chat_model,driver=driver,database=settings.neo4j_database,)
-
+    bim_query_service = Neo4jBIMQueryAdapter(chat_model=chat_model,driver=driver,database=settings.neo4j_database,)
+    sensor_resolver = Neo4jSensorResolver(chat_model=chat_model,driver=driver,database=settings.neo4j_database)
+    return SemanticServices(bim_query_service=bim_query_service,sensor_resolver=sensor_resolver)
 
 def _get_credentials( *,username: str | None, password: SecretStr | None) -> tuple[str, str] | None:
     if username is None or password is None:

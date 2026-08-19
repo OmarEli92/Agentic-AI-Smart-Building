@@ -57,6 +57,8 @@ def _create_openrouter_model(settings: Settings) -> BaseChatModel:
         temperature=settings.llm_temperature,
         max_tokens= settings.llm_max_tokens,
         max_retries=settings.llm_max_retries,
-        timeout=settings.llm_timeout_seconds
+        timeout=settings.llm_timeout_seconds * 1000,
+        openrouter_provider={"require_parameters": True}
+        
     )
     

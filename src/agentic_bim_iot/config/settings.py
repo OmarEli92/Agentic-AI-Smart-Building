@@ -141,6 +141,33 @@ class Settings(BaseSettings):
         validation_alias="GRAPHDB_ONTOLOGY_PATH",
     )
     
+    semantic_max_execution_repair_retries: int = Field(
+        default=2,
+        ge=0,
+        validation_alias=("SEMANTIC_MAX_EXECUTION_REPAIR_RETRIES")
+    )
+    
+    #Thingsboard
+    thingsboard_url: str = Field(
+    default="http://localhost:8080",
+    validation_alias="THINGSBOARD_URL",
+    )
+
+    thingsboard_api_key: SecretStr | None = Field(
+        default=None,
+        validation_alias="THINGSBOARD_API_KEY",
+    )
+
+    thingsboard_username: str | None = Field(
+        default=None,
+        validation_alias="THINGSBOARD_USERNAME",
+    )
+
+    thingsboard_password: SecretStr | None = Field(
+        default=None,
+        validation_alias="THINGSBOARD_PASSWORD",
+    )    
+    
     @model_validator(mode="after")
     def validate_llm_configuration(self) -> Self:
         """Verify if the required api key and the llm model are selected correctly"""
@@ -170,3 +197,5 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+

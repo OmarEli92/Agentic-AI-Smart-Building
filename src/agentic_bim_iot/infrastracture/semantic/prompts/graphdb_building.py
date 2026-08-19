@@ -251,8 +251,49 @@ WHERE {{
   ?room props:longNameIfcSpatialStructureElement_attribute_simple ?roomName .
   FILTER NOT EXISTS {{ ?actuator bop:actsOnRoom ?room . }}
 }}
-</example>
 
+User Question:
+What is the GUID of the humidity sensor in the Kitchen?
+
+Important:
+A measurement-specific subsensor may not have its own BIM GUID.
+When a room contains a MultiSensor with measurement-specific subsensors,
+identify the requested subsensor through hasSubSensor and return the GUID
+of the main MultiSensor.
+
+SPARQL:
+PREFIX bot: <https://w3id.org/bot#>
+PREFIX bop: <https://w3id.org/bop#>
+PREFIX props: <https://w3id.org/props#>
+SELECT ?sensorGuid
+WHERE {{
+    ?room props:longNameIfcSpatialStructureElement_attribute_simple ?roomName .
+    FILTER(CONTAINS(LCASE(STR(?roomName)), "kitchen"))
+
+    ?room bot:containsElement ?mainSensor .
+    ?mainSensor bop:hasSubSensor ?subSensor .
+    ?subSensor a bop:HumiditySensor .
+    ?mainSensor bot:hasGuid ?sensorGuid .
+}}
+
+User Question:
+What are the sensors inside the Kitchen?
+
+SPARQL:
+PREFIX bot: <https://w3id.org/bot#>
+PREFIX bop: <https://w3id.org/bop#>
+PREFIX props: <https://w3id.org/props#>
+SELECT DISTINCT ?sensor
+WHERE {{
+    ?room props:longNameIfcSpatialStructureElement_attribute_simple ?roomName .
+    FILTER(CONTAINS(LCASE(STR(?roomName)), "kitchen"))
+
+    ?room bot:containsElement ?sensor .
+    ?sensor a bop:Sensor .
+}}
+
+
+</example>
 Schema:
 <schema>
 {schema}

@@ -4,6 +4,7 @@ from rdflib.term import Identifier
 from agentic_bim_iot.application.interfaces.semantic import BIMQueryServiceError
 from agentic_bim_iot.domain.semantic import SemanticQueryResult
 from agentic_bim_iot.infrastracture.semantic.graphdb.graph_store import GraphStoreError, SPARQLGraphStore, SPARQLResult
+from agentic_bim_iot.infrastracture.semantic.graphdb.query_pipeline import GraphDBQueryPipeline
 from agentic_bim_iot.infrastracture.semantic.graphdb.query_validation import InvalidSPARQLQuery, validate_select_query
 from agentic_bim_iot.infrastracture.semantic.prompts.building import BIM_QA_PROMPT
 from agentic_bim_iot.infrastracture.semantic.prompts.fix import GRAPHDB_SPARQL_FIX_PROMPT
@@ -20,6 +21,7 @@ class GraphDBBIMQueryAdapter:
         self._graph_store = graph_store
         self._max_repair_retries = max_repair_retries
         output_parser = StrOutputParser()
+        self._query_pipeline = GraphDBQueryPipeline(chat_model=chat_model,graph_store=graph_store,generation_prompt=SPARQL_BUILDING_PROMPT,max_repair_retries=max_repair_retries)
         self._generation_chain = (SPARQL_BUILDING_PROMPT| chat_model| output_parser)
         self._repair_chain = (GRAPHDB_SPARQL_FIX_PROMPT| chat_model| output_parser)
         self._answer_chain = (BIM_QA_PROMPT| chat_model| output_parser)
@@ -33,19 +35,9 @@ class GraphDBBIMQueryAdapter:
         if not question:
             raise BIMQueryServiceError("The BIM query cannot be empty.")
         try:
-            schema = self._graph_store.get_schema()
-            generated_query = self._generation_chain.invoke(
-                {
-                    "schema": schema,
-                    "prompt": question,
-                }
-            )
-            validated_query = self._validate_with_repair(generated_query)
-            records = self._graph_store.execute_select(validated_query)
-
-        except (GraphStoreError,InvalidSPARQLQuery,) as exc:
-            raise BIMQueryServiceError(
-                "The GraphDB semantic pipeline could not complete the BIM query.") from exc
+            records = self._query_pipeline.execute(question)
+        except (GraphStoreError,InvalidSPARQLQuery) as exc:
+            raise BIMQueryServiceError("The GraphDB semantic pipeline could not complete the BIM query.") from exc
         
         context = self._format_result_context(records)
         answer = self._answer_chain.invoke(
