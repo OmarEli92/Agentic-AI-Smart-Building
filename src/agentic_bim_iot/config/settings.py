@@ -20,6 +20,12 @@ class SemanticBackend(StrEnum):
     GRAPHDB = "graphdb"
     NEO4J = "neo4j"
 
+class ActuatorResolutionStrategy(StrEnum):
+    """This class represents the possible strategy that can be used to retrieve the actuators in the building"""
+    LLM = "llm"
+    ONTOLOGY_PROFILE = "ontology_profile"
+
+    
 class Settings(BaseSettings):
     """This class represents the basic settings configuration for the application
     it can be loaded from the .env file locally or inside Docker"""   
@@ -56,7 +62,7 @@ class Settings(BaseSettings):
     )
     
     llm_max_tokens: int = Field(
-        default=512,
+        default=2048,
         gt=0,
         validation_alias="LLM_MAX_TOKENS"
     )
@@ -78,6 +84,12 @@ class Settings(BaseSettings):
         validation_alias="SEMANTIC_BACKEND",
     )
 
+    actuator_resolution_strategy: ActuatorResolutionStrategy = Field(
+        default=ActuatorResolutionStrategy.LLM,
+        validation_alias="ACTUATOR_RESOLUTION_STRATEGY",
+    )
+
+ 
     # GraphDB
     graphdb_url: str = Field(
         default="http://localhost:7200/",
@@ -137,7 +149,7 @@ class Settings(BaseSettings):
         validation_alias="NEO4J_TIMEOUT_SECONDS",
     )
     graphdb_ontology_path: str = Field(
-        default="src/resources/ontology/openSmartHome_Donkers_v2.ttl",
+        default="resources/ontology/openSmartHome_Donkers_v2.ttl",
         validation_alias="GRAPHDB_ONTOLOGY_PATH",
     )
     
@@ -145,6 +157,22 @@ class Settings(BaseSettings):
         default=2,
         ge=0,
         validation_alias=("SEMANTIC_MAX_EXECUTION_REPAIR_RETRIES")
+    )
+    
+    proposal_database_path: str = Field(
+        default="data/proposals.db",
+        validation_alias="PROPOSAL_DATABASE_PATH",
+    )
+
+    proposal_ttl_seconds: int = Field(
+        default=900,
+        ge=60,
+        validation_alias="PROPOSAL_TTL_SECONDS",
+    )
+    
+    execution_database_path: str = Field(
+        default="data/executions.db",
+        validation_alias="EXECUTION_DATABASE_PATH",
     )
     
     #Thingsboard

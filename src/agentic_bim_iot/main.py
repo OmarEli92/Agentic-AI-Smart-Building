@@ -22,6 +22,7 @@ def main():
                     print(f"Model: {model}")
                     print(f"Input tokens:  {usage.get('input_tokens', 0)}")
                     print(f"Output tokens: {usage.get('output_tokens', 0)}")
+                    print(f"Output details: {usage.get('output_token_details', {})}")
                     print(f"Total tokens:  {usage.get('total_tokens', 0)}")
                     print()
                 print("=" * 70)

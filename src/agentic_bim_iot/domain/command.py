@@ -1,0 +1,44 @@
+from enum import StrEnum
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class ActuationOperation(StrEnum):
+    """The operation that could be executed"""
+    SET_VALUE = "set_value"
+
+
+class CommandAuthorizationSource(StrEnum):
+    """The type of the command that could be received"""
+    EXPLICIT_USER_REQUEST = "explicit_user_request"
+    APPROVED_PROPOSAL = "approved_proposal"
+
+
+class CommandStructuringStatus(StrEnum):
+    """The status of the command"""
+    READY = "ready"
+    FAILED = "failed"
+
+
+class ActuationCommand(BaseModel):
+    """The actuation command"""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    command_id: str = Field(min_length=1)
+    room_reference: str = Field(min_length=1)
+    measurement: str = Field(min_length=1)
+    operation: ActuationOperation
+    target_value: float
+    unit: str = Field(min_length=1)
+    actuator_guid: str = Field(min_length=1)
+    actuator_type: str = Field(min_length=1)
+    authorization_source: CommandAuthorizationSource
+    proposal_id: str | None = None
+    source_action_id: str | None = None
+    created_at_ms: int
+
+
+class CommandStructuringResult(BaseModel):
+    """The acutal result of the command"""
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    status: CommandStructuringStatus
+    commands: tuple[ActuationCommand, ...]
+    message: str = Field(min_length=1)

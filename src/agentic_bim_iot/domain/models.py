@@ -8,37 +8,24 @@ class SupervisorDecision(BaseModel):
     which is the agent who interpet the intent of a request from the Facility Manager.
     It also defines a contract of how the output should be structured"""
     model_config = ConfigDict(extra="forbid")
-    intent: Intent = Field(
-        description="Primary intent of the Facility Manager request"
-    )
-    route: Route = Field(
-        description="Next LangGraph node to execute."
-    )
+    intent: Intent = Field(description="Primary intent of the Facility Manager request")
+    route: Route = Field(description="Next LangGraph node to execute.")
     building_reference: str | None = None
     floor_reference: str | None = None
-    room_reference: str | None = Field(
-        default=None,
+    room_reference: str | None = Field(default=None,
         description=(
-            "Room explicitly mentioned in the user request. "
-            "Example: in 'What is the temperature in the Kitchen?' "
-            "the value is 'Kitchen'."
+            "Room or named space explicitly mentioned in the original user request. "
+            "This field is mandatory whenever such a reference is present, regardless "
+            "of the selected intent. Example: in 'What is the comfort in the Kitchen?' "
+            "the value is 'Kitchen'; in 'room 101' the value is '101'. Never return "
+            "null when the request explicitly contains the room."
         )
     )
-    request_is_operational: bool = Field(
-        description="True if the request may change the physical environment.",
-        default=False
-    )
-    request_is_explicit_actuation: bool = Field(
-        description="True if the user explicitly specified the physical action.",
-        default=False
-    )
-    clarification_required: bool = Field(
-        description="True if execution cannot safely continue without clarification.",
-        default=False
-    )
+    request_is_operational: bool = Field(description="True if the request may change the physical environment.", default=False)
+    request_is_explicit_actuation: bool = Field(description="True if the user explicitly specified the physical action.", default=False)
+    clarification_required: bool = Field(description="True if execution cannot safely continue without clarification.", default=False)
     clarification_question: str | None = None
-    measurement_reference: str | None = Field(
-    default=None,
+    measurement_reference: str | None = Field(default=None,
     description=("Measurement explicitly requested by the user. "
             "Examples: temperature, humidity, brightness. "
             "In 'What is the temperature in the Kitchen?' "
@@ -51,23 +38,14 @@ class SupervisorDecision(BaseModel):
         """This method checks the coherence and consistency of the intentions and routes """
         if self.clarification_required:
             if self.route is not Route.REQUEST_CLARIFICATION:
-                raise ValueError(
-                    "Clarification requires the type Route.REQUEST_CLARIFICATIOON"
-                )
-            
+                raise ValueError("Clarification requires the type Route.REQUEST_CLARIFICATIOON")
             if not self.clarification_question:
-                raise ValueError(
-                    "A clarification question is required."
-                )
+                raise ValueError("A clarification question is required.")
         # se c'è da chiarire la rotta ma l'oggetto non richeide di chiarire
         if (self.route is Route.REQUEST_CLARIFICATION
             and not self.clarification_required):
-            raise ValueError(
-                "Route.REQUEST_CLARIFICATION requires clarification."
-            )
+            raise ValueError("Route.REQUEST_CLARIFICATION requires clarification.")
         # se viene richiesta un attuazione su un dispositivo ma la richiesta non è una richiesta del tipo operazionale
         if self.request_is_explicit_actuation and not self.request_is_operational:
-            raise ValueError(
-                "Explicit actuation must also be operational."
-            )
+            raise ValueError("Explicit actuation must also be operational.")
         return self

@@ -8,3 +8,10 @@ class IoTDeviceReference(BaseModel):
     semantic_sensor_guid: str = Field(min_length=1)
     platform_device_id: str = Field(min_length=1)
     platform_device_name: str = Field(min_length=1)
+    
+
+class IoTActuatorDeviceReference(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    semantic_actuator_guid: str = Field(min_length=1)
+    platform_device_id: str = Field(min_length=1)
+    platform_device_name: str = Field(min_length=1)
