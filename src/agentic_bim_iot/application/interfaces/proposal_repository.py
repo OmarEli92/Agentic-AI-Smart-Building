@@ -14,6 +14,9 @@ class ProposalRepository(Protocol):
     def get(self, proposal_id: str) -> ActionProposal | None:
         ...
 
+    def get_latest(self, room_reference: str) -> ActionProposal | None:
+        ...
+        
     def get_latest_pending(self, room_reference: str | None = None) -> ActionProposal | None:
         ...
 

@@ -25,6 +25,11 @@ $env:OPENAI_API_KEY="..."
 
 Configure any additional credentials required by the project, such as ThingsBoard connection settings.
 
+DOCKER 
+
+COMANDO DOCKER COMPOSE PER LANGFUSE:
+docker compose -f docker-compose.langfuse.yml --env-file .env.langfuse up -d
+
 5. Load the ontologies
 GRAPHDB/NEO4j
 python scripts/load_graphdb_ontology.py

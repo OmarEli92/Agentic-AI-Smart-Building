@@ -20,7 +20,7 @@ class GraphDBSensorResolver:
         self._graph_store = graph_store
         self._max_repair_retries = max_repair_retries
         self._query_pipeline = GraphDBQueryPipeline(chat_model=chat_model, graph_store=graph_store, generation_prompt=SPARQL_SENSOR_PROMPT,
-                                                    max_repair_retries=max_repair_retries)
+                                                    max_repair_retries=max_repair_retries, component="sensor_text_to_sparql",)
 
     def resolve(self, room_reference: str, measurement: str) -> SensorReference:
         """Resolve the sensor GUID"""

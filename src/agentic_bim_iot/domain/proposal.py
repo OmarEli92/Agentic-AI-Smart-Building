@@ -15,6 +15,12 @@ class ProposalStatus(StrEnum):
     STALE = "stale"
 
 
+class ProposalSource(StrEnum):
+    USER_REQUESTED = "user_requested"
+    PROACTIVE_MONITOR = "proactive_monitor"
+
+
+
 class ProposedAction(BaseModel):
     """The proposed action model"""
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -41,6 +47,7 @@ class ActionProposal(BaseModel):
     created_at_ms: int
     expires_at_ms: int
     supersedes_proposal_id: str | None = None
+    source: ProposalSource = ProposalSource.USER_REQUESTED
 
 
 class PlanningResult(BaseModel):

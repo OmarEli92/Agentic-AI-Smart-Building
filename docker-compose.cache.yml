@@ -1,0 +1,20 @@
+name: agentic-smart-building-cache
+
+services:
+  smart-building-cache:
+    image: redis:8.2.9-alpine
+    container_name: agentic-smart-building-cache
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${SMART_BUILDING_REDIS_PASSWORD}", "--maxmemory-policy", "allkeys-lru"]
+    ports:
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - smart_building_cache_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${SMART_BUILDING_REDIS_PASSWORD}\" ping | grep PONG"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  smart_building_cache_data:

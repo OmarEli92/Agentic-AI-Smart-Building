@@ -25,6 +25,27 @@ class ActuatorResolutionStrategy(StrEnum):
     LLM = "llm"
     ONTOLOGY_PROFILE = "ontology_profile"
 
+
+class ObservabilityBackend(StrEnum):
+    """This class represent the observability layer for now it could be none or with the usage of Langfuse framework"""
+    NONE = "none"
+    LANGFUSE = "langfuse"
+
+
+class EvaluationFramework(StrEnum):
+    """This class represents the Evaluation layer that can be selected for the system's evaluation"""
+    NONE = "none"
+    LANGFUSE = "langfuse"
+    DEEPEVAL = "deepeval"
+    RAGAS = "ragas"
+    
+    
+    
+class BIMCacheBackend(StrEnum):
+    """The cache in the system"""
+    NONE = "none"
+    REDIS = "redis"
+    
     
 class Settings(BaseSettings):
     """This class represents the basic settings configuration for the application
@@ -46,13 +67,8 @@ class Settings(BaseSettings):
         validation_alias="LLM_PROVIDER"
     )
     
-    llm_model: str = Field(
-        validation_alias="LLM_MODEL"
-    )
-    
-    llm_api_key: SecretStr = Field(
-        validation_alias="LLM_API_KEY",
-    )
+    llm_model: str = Field(validation_alias="LLM_MODEL")
+    llm_api_key: SecretStr = Field(validation_alias="LLM_API_KEY")
     
     llm_temperature: float = Field(
         default=0.0,
@@ -76,81 +92,81 @@ class Settings(BaseSettings):
     llm_timeout_seconds: float = Field(
         default=60.0,
         gt=0,
-        validation_alias="LLM_TIMEOUT_SECONDS",
+        validation_alias="LLM_TIMEOUT_SECONDS"
     )
     #The Bim sources
     semantic_backend: SemanticBackend = Field(
         default=SemanticBackend.GRAPHDB,
-        validation_alias="SEMANTIC_BACKEND",
+        validation_alias="SEMANTIC_BACKEND"
     )
 
     actuator_resolution_strategy: ActuatorResolutionStrategy = Field(
         default=ActuatorResolutionStrategy.LLM,
-        validation_alias="ACTUATOR_RESOLUTION_STRATEGY",
+        validation_alias="ACTUATOR_RESOLUTION_STRATEGY"
     )
 
  
     # GraphDB
     graphdb_url: str = Field(
         default="http://localhost:7200/",
-        validation_alias="GRAPHDB_URL",
+        validation_alias="GRAPHDB_URL"
     )
 
     graphdb_repository: str = Field(
         default="smartHome",
-        validation_alias="GRAPHDB_REPOSITORY",
+        validation_alias="GRAPHDB_REPOSITORY"
     )
     
     graphdb_username: str | None = Field(
         default=None,
-        validation_alias="GRAPHDB_USERNAME",
+        validation_alias="GRAPHDB_USERNAME"
     )
 
     graphdb_password: SecretStr | None = Field(
         default=None,
-        validation_alias="GRAPHDB_PASSWORD",
+        validation_alias="GRAPHDB_PASSWORD"
     )
     # Neo4j
     neo4j_uri: str = Field(
         default="neo4j://localhost:7687",
-        validation_alias="NEO4J_URI",
+        validation_alias="NEO4J_URI"
     )
 
     neo4j_username: str | None = Field(
         default=None,
-        validation_alias="NEO4J_USERNAME",
+        validation_alias="NEO4J_USERNAME"
     )
 
     neo4j_password: SecretStr | None = Field(
         default=None,
-        validation_alias="NEO4J_PASSWORD",
+        validation_alias="NEO4J_PASSWORD"
     )
 
     neo4j_database: str = Field(
         default="neo4j",
-        validation_alias="NEO4J_DATABASE",
+        validation_alias="NEO4J_DATABASE"
     )
 
     graphdb_max_repair_retries: int = Field(
         default=2,
         ge=0,
-        validation_alias="GRAPHDB_MAX_REPAIR_RETRIES",
+        validation_alias="GRAPHDB_MAX_REPAIR_RETRIES"
     )
 
     graphdb_timeout_seconds: float = Field(
         default=30.0,
         gt=0,
-        validation_alias="GRAPHDB_TIMEOUT_SECONDS",
+        validation_alias="GRAPHDB_TIMEOUT_SECONDS"
     )
     
     neo4j_timeout_seconds: float = Field(
         default=30.0,
         gt=0,
-        validation_alias="NEO4J_TIMEOUT_SECONDS",
+        validation_alias="NEO4J_TIMEOUT_SECONDS"
     )
     graphdb_ontology_path: str = Field(
         default="resources/ontology/openSmartHome_Donkers_v2.ttl",
-        validation_alias="GRAPHDB_ONTOLOGY_PATH",
+        validation_alias="GRAPHDB_ONTOLOGY_PATH"
     )
     
     semantic_max_execution_repair_retries: int = Field(
@@ -161,40 +177,136 @@ class Settings(BaseSettings):
     
     proposal_database_path: str = Field(
         default="data/proposals.db",
-        validation_alias="PROPOSAL_DATABASE_PATH",
+        validation_alias="PROPOSAL_DATABASE_PATH"
     )
 
     proposal_ttl_seconds: int = Field(
         default=900,
         ge=60,
-        validation_alias="PROPOSAL_TTL_SECONDS",
+        validation_alias="PROPOSAL_TTL_SECONDS"
     )
     
     execution_database_path: str = Field(
         default="data/executions.db",
-        validation_alias="EXECUTION_DATABASE_PATH",
+        validation_alias="EXECUTION_DATABASE_PATH"
     )
     
     #Thingsboard
     thingsboard_url: str = Field(
-    default="http://localhost:8080",
-    validation_alias="THINGSBOARD_URL",
+        default="http://localhost:8080",
+        validation_alias="THINGSBOARD_URL"
     )
 
     thingsboard_api_key: SecretStr | None = Field(
         default=None,
-        validation_alias="THINGSBOARD_API_KEY",
+        validation_alias="THINGSBOARD_API_KEY"
     )
 
     thingsboard_username: str | None = Field(
         default=None,
-        validation_alias="THINGSBOARD_USERNAME",
+        validation_alias="THINGSBOARD_USERNAME"
     )
 
     thingsboard_password: SecretStr | None = Field(
         default=None,
-        validation_alias="THINGSBOARD_PASSWORD",
+        validation_alias="THINGSBOARD_PASSWORD"
     )    
+    
+    #Observability and logging
+    
+    observability_backend: ObservabilityBackend = Field(
+        default=ObservabilityBackend.NONE,
+        validation_alias="OBSERVABILITY_BACKEND"
+    )
+
+    evaluation_framework: EvaluationFramework = Field(
+        default=EvaluationFramework.NONE,
+        validation_alias="EVALUATION_FRAMEWORK"
+    )
+    
+    
+    log_file_path: str = Field(
+        default="logs/agentic_bim_iot.log",
+        validation_alias="LOG_FILE_PATH"
+    )
+
+    log_level: str = Field(
+        default="INFO",
+        validation_alias="LOG_LEVEL"
+    )
+    
+    
+    #Cache
+    bim_cache_backend: BIMCacheBackend = Field(
+        default=BIMCacheBackend.NONE,
+        validation_alias="BIM_CACHE_BACKEND",
+    )
+
+    bim_cache_redis_url: SecretStr = Field(
+        default=SecretStr("redis://localhost:6380/0"),
+        validation_alias="BIM_CACHE_REDIS_URL",
+    )
+
+    bim_cache_ttl_seconds: int = Field(
+        default=604800, # 7 giorni
+        ge=60,
+        validation_alias="BIM_CACHE_TTL_SECONDS",
+    )
+
+    bim_cache_key_prefix: str = Field(
+        default="agentic-smart-building",
+        validation_alias="BIM_CACHE_KEY_PREFIX",
+    )
+
+    bim_cache_version: str = Field(
+        default="v1",
+        validation_alias="BIM_CACHE_VERSION",
+    )
+
+    bim_cache_fail_open: bool = Field(
+        default=True,
+        validation_alias="BIM_CACHE_FAIL_OPEN",
+    )
+    
+    proactive_comfort_enabled: bool = Field(
+        default=False,
+        validation_alias="PROACTIVE_COMFORT_ENABLED",
+    )
+
+    proactive_comfort_interval_seconds: int = Field(
+        default=60,
+        ge=10,
+        validation_alias="PROACTIVE_COMFORT_INTERVAL_SECONDS",
+    )
+
+    proactive_comfort_rooms: str = Field(
+        default="kitchen",
+        validation_alias="PROACTIVE_COMFORT_ROOMS",
+    )
+
+    proactive_proposal_cooldown_seconds: int = Field(
+        default=900,
+        ge=60,
+        validation_alias="PROACTIVE_PROPOSAL_COOLDOWN_SECONDS",
+    )
+
+    notification_database_path: str = Field(
+        default="data/notifications.db",
+        validation_alias="NOTIFICATION_DATABASE_PATH",
+    )
+    
+    #Streamlit
+    streamlit_page_title: str = Field(
+        default="Agentic Smart Building",
+        validation_alias="STREAMLIT_PAGE_TITLE",
+    )
+
+    streamlit_notification_poll_seconds: int = Field(
+        default=5,
+        ge=1,
+        validation_alias="STREAMLIT_NOTIFICATION_POLL_SECONDS",
+    )
+    
     
     @model_validator(mode="after")
     def validate_llm_configuration(self) -> Self:

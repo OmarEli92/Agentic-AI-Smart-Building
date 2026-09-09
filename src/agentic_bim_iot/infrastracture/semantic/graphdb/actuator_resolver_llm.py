@@ -12,7 +12,9 @@ from agentic_bim_iot.utility import _extract_references, _normalize_measurements
 class GraphDBLLMActuatorResolver:
     """The LLM actuator resolver implementation which leverage the LLM to resolve the actuators"""
     def __init__(self, chat_model: BaseChatModel, graph_store: SPARQLGraphStore) -> None:
-        self._query_pipeline = GraphDBQueryPipeline(chat_model=chat_model, graph_store=graph_store, generation_prompt=SPARQL_ACTUATOR_PROMPT, max_repair_retries=0)
+        self._query_pipeline = GraphDBQueryPipeline(chat_model=chat_model, graph_store=graph_store, 
+                                                    generation_prompt=SPARQL_ACTUATOR_PROMPT, max_repair_retries=0,
+                                                    component="actuator_text_to_sparql")
 
     def resolve(self, room_reference: str, measurement: str) -> ActuatorReference:
         references = self.resolve_many(room_reference, [measurement])

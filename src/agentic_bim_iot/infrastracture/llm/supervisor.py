@@ -11,6 +11,7 @@ from agentic_bim_iot.application.supervisor.reference_guard import (
 )
 from agentic_bim_iot.domain.enums import Intent, Route
 from agentic_bim_iot.domain.models import SupervisorDecision
+from agentic_bim_iot.infrastracture.observability.tracing import llm_run_config
 
 
 class LLMSupervisor:
@@ -68,48 +69,41 @@ class LLMSupervisor:
             SystemMessage(content=self._system_prompt),
             HumanMessage(content=user_query),
         ]
-        return self._invoke_structured(messages)
+        return self._invoke_structured(messages, operation="decision")
 
-    def _invoke_structured(
-        self, messages: list[SystemMessage | HumanMessage]
-    ) -> tuple[SupervisorDecisionDraft | None, str]:
-        result: Any = self.structured_model.invoke(messages)
-
+    def _invoke_structured(self, messages: list[SystemMessage | HumanMessage], *, 
+                           operation: str, repair_attempt: bool = False) -> tuple[SupervisorDecisionDraft | None, str]:
+        result: Any = self.structured_model.invoke(messages,config=llm_run_config(
+            component="supervisor",
+            operation=operation,
+            repair_attempt=repair_attempt,
+        ))
         parsed = result.get("parsed") if isinstance(result, dict) else None
         parsing_error = result.get("parsing_error") if isinstance(result, dict) else None
         raw_output = self._extract_raw_output(result.get("raw") if isinstance(result, dict) else None)
-
         if isinstance(parsed, SupervisorDecisionDraft):
             return parsed, raw_output
-
         if parsing_error is not None:
             print(f"Supervisor structured output parsing failed: {parsing_error}")
-
         return None, raw_output
 
     @staticmethod
-    def _recover_explicit_references(
-        *, user_query: str, decision: SupervisorDecisionDraft
-    ) -> SupervisorDecisionDraft:
+    def _recover_explicit_references(*, user_query: str, decision: SupervisorDecisionDraft) -> SupervisorDecisionDraft:
         """Recover explicit references omitted by the LLM without reclassifying intent."""
         updates: dict[str, object] = {}
-
         if not decision.room_reference:
             room_reference = extract_explicit_room_reference(user_query)
             if room_reference:
                 updates["room_reference"] = room_reference
-
         if (
             decision.intent in {Intent.TELEMETRY_INFORMATION, Intent.DIRECT_ACTUATION}
-            and not decision.measurement_reference
-        ):
+            and not decision.measurement_reference):
             measurement_reference = extract_explicit_measurement_reference(user_query)
             if measurement_reference:
                 updates["measurement_reference"] = measurement_reference
 
         if not updates:
             return decision
-
         return decision.model_copy(update=updates)
 
     @staticmethod
@@ -117,15 +111,11 @@ class LLMSupervisor:
         """Return True only when the selected workflow is missing required references."""
         if decision.intent == Intent.COMFORT_ANALYSIS:
             return not decision.room_reference
-
         if decision.intent in {Intent.TELEMETRY_INFORMATION, Intent.DIRECT_ACTUATION}:
             return not decision.room_reference or not decision.measurement_reference
-
         return False
 
-    def _repair_invalid_output(
-        self, *, user_query: str, raw_output: str
-    ) -> tuple[SupervisorDecisionDraft | None, str]:
+    def _repair_invalid_output(self, *, user_query: str, raw_output: str) -> tuple[SupervisorDecisionDraft | None, str]:
         """Perform one repair when the first structured output cannot be parsed."""
         repair_prompt = f"""
 You are repairing an invalid structured Supervisor output.
@@ -169,11 +159,10 @@ Return only the complete structured object required by the schema.
             SystemMessage(content=repair_prompt),
             HumanMessage(content=user_query),
         ]
-        return self._invoke_structured(messages)
+        return self._invoke_structured(messages,operation="invalid_output_repair",repair_attempt=True)
 
-    def _repair_incomplete_decision(
-        self, *, user_query: str, previous_decision: SupervisorDecisionDraft
-    ) -> tuple[SupervisorDecisionDraft | None, str]:
+
+    def _repair_incomplete_decision(self, *, user_query: str, previous_decision: SupervisorDecisionDraft) -> tuple[SupervisorDecisionDraft | None, str]:
         """Perform one targeted repair of missing workflow references."""
         repair_prompt = f"""
 You are repairing an incomplete structured Supervisor decision.
@@ -222,16 +211,14 @@ Return the complete structured decision required by the schema.
             SystemMessage(content=repair_prompt),
             HumanMessage(content=user_query),
         ]
-        return self._invoke_structured(messages)
+        return self._invoke_structured(messages,operation="invalid_output_repair", repair_attempt=True)
 
     @staticmethod
     def _enforce_route_invariants(decision: SupervisorDecisionDraft) -> SupervisorDecisionDraft:
         """Prevent downstream nodes from receiving structurally unusable decisions."""
         updates: dict[str, object] = {}
-
         if decision.request_is_explicit_actuation and not decision.request_is_operational:
             updates["request_is_operational"] = True
-
         if decision.intent == Intent.COMFORT_ANALYSIS:
             if decision.room_reference:
                 updates.update({
@@ -246,11 +233,9 @@ Return the complete structured decision required by the schema.
                     "clarification_question": "Which room would you like me to analyze?",
                 })
             return decision.model_copy(update=updates)
-
         if decision.intent == Intent.TELEMETRY_INFORMATION:
             missing_room = not decision.room_reference
             missing_measurement = not decision.measurement_reference
-
             if not missing_room and not missing_measurement:
                 updates.update({
                     "route": Route.TELEMETRY_AGENT,
@@ -264,14 +249,12 @@ Return the complete structured decision required by the schema.
                     question = "Which room would you like me to retrieve the measurement from?"
                 else:
                     question = "Which measurement would you like me to retrieve?"
-
                 updates.update({
                     "route": Route.REQUEST_CLARIFICATION,
                     "clarification_required": True,
                     "clarification_question": decision.clarification_question or question,
                 })
             return decision.model_copy(update=updates)
-
         if decision.intent == Intent.DIRECT_ACTUATION:
             if not decision.request_is_explicit_actuation:
                 updates.update({
@@ -280,10 +263,8 @@ Return the complete structured decision required by the schema.
                     "clarification_question": None,
                 })
                 return decision.model_copy(update=updates)
-
             missing_room = not decision.room_reference
             missing_measurement = not decision.measurement_reference
-
             if not missing_room and not missing_measurement:
                 updates.update({
                     "route": Route.COMMAND_STRUCTURING,
@@ -299,7 +280,6 @@ Return the complete structured decision required by the schema.
                     question = "Which room should I apply the command to?"
                 else:
                     question = "Which measurement should I control?"
-
                 updates.update({
                     "route": Route.REQUEST_CLARIFICATION,
                     "request_is_operational": True,
@@ -314,7 +294,6 @@ Return the complete structured decision required by the schema.
             if not decision.clarification_question:
                 updates["clarification_question"] = "Could you clarify the missing information in your request?"
             return decision.model_copy(update=updates)
-
         route_by_intent = {
             Intent.BIM_INFORMATION: Route.BIM_AGENT,
             Intent.ACTION_RECOMMENDATION: Route.PLANNING_AGENT,
@@ -324,13 +303,10 @@ Return the complete structured decision required by the schema.
             Intent.EXECUTION_STATUS: Route.EXECUTION_STATUS,
             Intent.UNSUPPORTED: Route.RESPOND_UNSUPPORTED,
         }
-
         if decision.intent in route_by_intent:
             updates["route"] = route_by_intent[decision.intent]
-
         updates["clarification_required"] = False
         updates["clarification_question"] = None
-
         return decision.model_copy(update=updates)
 
     @staticmethod

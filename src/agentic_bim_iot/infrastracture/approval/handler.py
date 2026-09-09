@@ -1,5 +1,7 @@
+import logging
 import re
 import time
+from agentic_bim_iot.application.interfaces import notification_repository
 from agentic_bim_iot.application.interfaces.approval import ApprovalHandlerError
 from agentic_bim_iot.application.interfaces.comfort import ComfortEngine, ComfortEngineError
 from agentic_bim_iot.application.interfaces.proposal_repository import ProposalRepository, ProposalRepositoryError
@@ -7,16 +9,19 @@ from agentic_bim_iot.domain.approval import ApprovalOutcome, ApprovalResult
 from agentic_bim_iot.domain.comfort import ComfortAssessment
 from agentic_bim_iot.domain.enums import Intent
 from agentic_bim_iot.domain.proposal import ActionProposal, ProposalStatus
+from agentic_bim_iot.application.interfaces.notification_repository import NotificationRepository, NotificationRepositoryError
 
-
+logger = logging.getLogger("agentic_bim_iot.approval")
 _PROPOSAL_ID_PATTERN = re.compile(r"\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\b")
 
 
 class ProposalApprovalHandler:
-    def __init__(self, proposal_repository: ProposalRepository, comfort_engine: ComfortEngine) -> None:
+    def __init__(self, proposal_repository: ProposalRepository, comfort_engine: ComfortEngine,
+    notification_repository: NotificationRepository | None = None) -> None:
         self._proposal_repository = proposal_repository
         self._comfort_engine = comfort_engine
-
+        self._comfort_engine = comfort_engine
+        self._notification_repository = notification_repository
     def handle(self, intent: Intent, user_query: str, room_reference: str | None = None) -> ApprovalResult:
         proposal_result = self._resolve_pending_proposal(user_query=user_query, room_reference=room_reference)
         if isinstance(proposal_result, ApprovalResult):
@@ -75,11 +80,22 @@ class ProposalApprovalHandler:
             return ApprovalResult(outcome=ApprovalOutcome.AMBIGUOUS, proposal=None, current_comfort_assessment=None, message=f"Multiple pending proposals match this request. Specify the proposal ID: {proposal_ids}.",)
         return pending_proposals[0]
 
+
     def _update_proposal(self, proposal: ActionProposal) -> None:
         try:
             self._proposal_repository.update(proposal)
         except ProposalRepositoryError as exc:
             raise ApprovalHandlerError("The proposal status could not be updated.") from exc
+
+
+    def _resolve_notification_fail_open(self, proposal_id: str) -> None:
+        if self._notification_repository is None:
+            return
+        try:
+            self._notification_repository.resolve_by_proposal(proposal_id)
+        except NotificationRepositoryError as exc:
+            logger.warning("Could not resolve notification for proposal %s: %s",proposal_id, exc)
+
 
     @staticmethod
     def _proposal_is_stale(proposal: ActionProposal, current_assessment: ComfortAssessment) -> bool:

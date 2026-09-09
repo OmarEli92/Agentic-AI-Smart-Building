@@ -69,7 +69,8 @@ services:
     depends_on:
       thingsboard-postgres:
         condition: service_healthy
-
+  
+  
 
 volumes:
   graphdb_data:
@@ -77,3 +78,4 @@ volumes:
   neo4j_logs:
   neo4j_plugins:
   thingsboard_postgres_data:
+ 

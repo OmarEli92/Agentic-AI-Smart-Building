@@ -1,0 +1,42 @@
+{
+  "benchmark_id": "baseline_core_workflows-20260907T173325Z-e6a3bb7e",
+  "suite_id": "baseline_core_workflows",
+  "suite_sha256": "b7e291c30ab7174ab49971d29d169bf3a32c9260de87d9495d343bbe6508b2ac",
+  "phase": "baseline",
+  "mode": "cold",
+  "repetitions": 1,
+  "started_at": "2026-09-07T17:33:25.788883+00:00",
+  "completed_at": "2026-09-07T17:33:37.989771+00:00",
+  "git_commit": "55e9b49b83e42375dabb3046c4937d678f28ec8b",
+  "configuration": {
+    "app_env": "development",
+    "llm_provider": "openrouter",
+    "llm_model": "anthropic/claude-sonnet-4.5",
+    "semantic_backend": "graphdb",
+    "actuator_resolution_strategy": "ontology_profile",
+    "observability_backend": "langfuse",
+    "evaluation_framework": "none"
+  },
+  "results": [
+    {
+      "benchmark_id": "baseline_core_workflows-20260907T173325Z-e6a3bb7e",
+      "suite_id": "baseline_core_workflows",
+      "scenario_id": "telemetry_information",
+      "category": "telemetry_information",
+      "step_id": "temperature_kitchen",
+      "iteration": 1,
+      "mode": "cold",
+      "status": "succeeded",
+      "request_id": "0254334d-3f62-4184-98b6-23bd3396cf91",
+      "trace_id": "e76f7ac0128db0d3efdcc2093268d4ab",
+      "query": "What's the temperature in the kitchen?",
+      "expected_intent": "telemetry_information",
+      "expected_route": "telemetry_agent",
+      "actual_intent": "telemetry_information",
+      "actual_route": "telemetry_agent",
+      "final_answer": "The latest temperature in kitchen is 18.",
+      "duration_ms": 9984.3998,
+      "error": null
+    }
+  ]
+}

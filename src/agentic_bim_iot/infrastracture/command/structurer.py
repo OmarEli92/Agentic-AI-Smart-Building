@@ -13,6 +13,7 @@ from agentic_bim_iot.domain.comfort import MEASUREMENT_UNITS
 from agentic_bim_iot.domain.enums import Intent
 from agentic_bim_iot.domain.models import SupervisorDecision
 from agentic_bim_iot.domain.proposal import ActionProposal, ProposalStatus
+from agentic_bim_iot.infrastracture.observability.tracing import llm_run_config
 
 
 class HybridCommandStructurer:
@@ -100,7 +101,12 @@ class HybridCommandStructurer:
             "resolved_measurement": measurement,
             "canonical_unit": MEASUREMENT_UNITS[measurement],
         }
-        result: Any = self._structured_model.invoke([SystemMessage(content=DIRECT_COMMAND_SYSTEM_PROMPT), HumanMessage(content=json.dumps(payload, indent=2)),])
+        result: Any = self._structured_model.invoke([SystemMessage(content=DIRECT_COMMAND_SYSTEM_PROMPT),
+                                                     HumanMessage(content=json.dumps(payload, indent=2)),]
+                                                    ,config=llm_run_config(
+                                                    component="command_structuring",
+                                                    operation="target_extraction",
+                                                    ))
         if not isinstance(result, dict):
             raise CommandStructuringError("The command structuring model returned an unexpected structured-output result.")
         parsed = result.get("parsed")
