@@ -9,7 +9,7 @@ from agentic_bim_iot.presentation.streamlit.runtime import StreamlitRuntimeHolde
 
 load_dotenv()
 settings = get_settings()
-st.set_page_config(page_title=settings.streamlit_page_title, page_icon="🏢", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title=settings.streamlit_page_title, layout="wide", initial_sidebar_state="expanded")
 
 
 @st.cache_resource(show_spinner="Initializing the Agentic Smart Building...")

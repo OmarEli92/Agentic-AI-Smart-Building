@@ -47,6 +47,12 @@ class BIMCacheBackend(StrEnum):
     REDIS = "redis"
     
     
+class ThingsBoardIntegration(StrEnum):
+    """The ThingsBoard integration selected by the application."""
+    REST = "rest"
+    MCP = "mcp"    
+   
+    
 class Settings(BaseSettings):
     """This class represents the basic settings configuration for the application
     it can be loaded from the .env file locally or inside Docker"""   
@@ -212,6 +218,21 @@ class Settings(BaseSettings):
         validation_alias="THINGSBOARD_PASSWORD"
     )    
     
+    thingsboard_integration: ThingsBoardIntegration = Field(
+        default=ThingsBoardIntegration.REST,
+        validation_alias="THINGSBOARD_INTEGRATION"
+    )
+
+    thingsboard_mcp_sse_url: str = Field(
+        default="http://localhost:8000/sse",
+        validation_alias="THINGSBOARD_MCP_SSE_URL"
+    )
+
+    thingsboard_mcp_timeout_seconds: float = Field(
+        default=30.0,
+        gt=0,
+        validation_alias="THINGSBOARD_MCP_TIMEOUT_SECONDS"
+    )
     #Observability and logging
     
     observability_backend: ObservabilityBackend = Field(
@@ -333,7 +354,15 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"{service_name} username and password must either both be provided or both be omitted.")
             
-    
+ 
+    @model_validator(mode="after")
+    def validate_thingsboard_integration(self) -> Self:
+        """Verify the ThingsBoard integration configuration."""
+
+        if self.thingsboard_integration == ThingsBoardIntegration.MCP and not self.thingsboard_mcp_sse_url.strip():
+            raise ValueError("The ThingsBoard MCP SSE URL cannot be empty when MCP integration is enabled.")
+        return self
+   
 @lru_cache
 def get_settings() -> Settings:
     return Settings()

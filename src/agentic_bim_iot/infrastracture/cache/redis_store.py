@@ -30,6 +30,7 @@ class RedisCacheStore:
         except RedisError as exc:
             raise CacheStoreError("Redis cache lookup failed.") from exc
 
+
     def set(self, namespace: str, key: str, value: str, ttl_seconds: int | None = None) -> None:
         ttl = ttl_seconds if ttl_seconds is not None else self._default_ttl_seconds
         try:

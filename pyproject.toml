@@ -56,6 +56,10 @@ ui-streamlit = [
     "streamlit==1.63.0",
 ]
 
+thingsboard-mcp = [
+    "mcp>=2,<3",
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 

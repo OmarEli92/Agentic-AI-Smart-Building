@@ -1,9 +1,7 @@
 from collections.abc import Iterator
 from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
-
 from langchain_core.runnables import Runnable
-
 from agentic_bim_iot.application.graph.builder import build_agent_graph
 from agentic_bim_iot.application.graph.dependencies import GraphDependencies
 from agentic_bim_iot.application.interfaces.comfort import ComfortEngine
@@ -33,6 +31,7 @@ from agentic_bim_iot.infrastracture.thingsboard.actuation import ThingsBoardActu
 from agentic_bim_iot.infrastracture.thingsboard.actuator_device_registry import ThingsBoardActuatorDeviceRegistry
 from agentic_bim_iot.infrastracture.thingsboard.device_registry import ThingsBoardDeviceRegistry
 from agentic_bim_iot.infrastracture.thingsboard.factory import create_thingsboard_client
+from agentic_bim_iot.infrastracture.thingsboard.integration_factory import create_thingsboard_services
 from agentic_bim_iot.infrastracture.thingsboard.telemetry import ThingsBoardTelemetryService
 
 
@@ -64,12 +63,16 @@ def create_runtime(settings: Settings | None = None) -> Iterator[ApplicationRunt
             sensor_resolver = CachedSensorResolver(delegate=sensor_resolver, cache=bim_cache_store, ttl_seconds=resolved_settings.bim_cache_ttl_seconds, fail_open=resolved_settings.bim_cache_fail_open)
             if actuator_resolver is not None:
                 actuator_resolver = CachedActuatorResolver(delegate=actuator_resolver, cache=bim_cache_store, ttl_seconds=resolved_settings.bim_cache_ttl_seconds, fail_open=resolved_settings.bim_cache_fail_open)
-
+        """"
         thingsboard_client = create_thingsboard_client(settings=resolved_settings, resources=resources)
         device_registry = ThingsBoardDeviceRegistry(client=thingsboard_client)
         telemetry_service = ThingsBoardTelemetryService(client=thingsboard_client, device_registry=device_registry)
         actuator_device_registry = ThingsBoardActuatorDeviceRegistry(client=thingsboard_client)
         actuation_service = ThingsBoardActuationService(client=thingsboard_client, actuator_device_registry=actuator_device_registry)
+        """
+        thingsboard_services = create_thingsboard_services(settings=resolved_settings, resources=resources)
+        telemetry_service = thingsboard_services.telemetry_service
+        actuation_service = thingsboard_services.actuation_service
         comfort_engine = RoomComfortEngine(sensor_resolver=sensor_resolver, telemetry_service=telemetry_service)
         proposal_repository = SQLiteProposalRepository(database_path=resolved_settings.proposal_database_path)
         execution_repository = SQLiteExecutionRepository(database_path=resolved_settings.execution_database_path)
@@ -86,7 +89,6 @@ def create_runtime(settings: Settings | None = None) -> Iterator[ApplicationRunt
         proactive_rooms = tuple(room.strip() for room in resolved_settings.proactive_comfort_rooms.split(",") if room.strip())
         room_catalog = ConfiguredRoomCatalog(rooms=proactive_rooms)
         safety_validator = BuildingSafetyPolicyValidator()
-
         dependencies = GraphDependencies(
             supervisor=supervisor,
             bim_query_service=semantic_services.bim_query_service,

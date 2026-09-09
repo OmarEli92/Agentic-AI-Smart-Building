@@ -4,52 +4,42 @@ services:
   graphdb:
     image: ontotext/graphdb:10.7.0
     restart: unless-stopped
-
     ports:
       - "7200:7200"
-
     volumes:
       - graphdb_data:/opt/graphdb/home
-
 
   neo4j:
     image: neo4j:5.26
     restart: unless-stopped
-
     ports:
       - "7474:7474"
       - "7687:7687"
-
     environment:
       NEO4J_AUTH: "${NEO4J_USERNAME}/${NEO4J_PASSWORD}"
       NEO4J_PLUGINS: '["apoc"]'
       NEO4J_dbms_security_procedures_unrestricted: "apoc.*"
       NEO4J_dbms_security_procedures_allowlist: "apoc.*"
-
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
       - neo4j_plugins:/plugins
-  
+
   thingsboard-postgres:
     image: postgres:18
     restart: unless-stopped
-
     environment:
       POSTGRES_DB: thingsboard
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: "${THINGSBOARD_POSTGRES_PASSWORD}"
-
     volumes:
       - thingsboard_postgres_data:/var/lib/postgresql
-
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d thingsboard"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
-
 
   thingsboard-ce:
     image: thingsboard/tb-node:4.3.1.3
@@ -69,8 +59,66 @@ services:
     depends_on:
       thingsboard-postgres:
         condition: service_healthy
-  
-  
+
+
+  thingsboard-ready:
+    image: curlimages/curl:latest
+
+    profiles:
+      - mcp
+
+    depends_on:
+      thingsboard-ce:
+        condition: service_started
+
+    command:
+      - sh
+      - -c
+      - |
+        echo "Waiting for ThingsBoard REST API..."
+        until curl -fsS http://thingsboard-ce:8080/ > /dev/null; do
+          echo "ThingsBoard is not ready yet..."
+          sleep 5
+        done
+        echo "ThingsBoard is ready."
+
+
+
+  thingsboard-mcp:
+    image: thingsboard/mcp:latest
+    container_name: agentic-smart-building-thingsboard-mcp
+    restart: unless-stopped
+
+    profiles:
+      - mcp
+
+    depends_on:
+      thingsboard-ready:
+        condition: service_completed_successfully
+
+    ports:
+      - "127.0.0.1:8000:8000"
+
+    environment:
+      THINGSBOARD_URL: http://thingsboard-ce:8080
+      THINGSBOARD_USERNAME: "${THINGSBOARD_USERNAME}"
+      THINGSBOARD_PASSWORD: "${THINGSBOARD_PASSWORD}"
+
+      SPRING_AI_MCP_SERVER_STDIO: "false"
+      SPRING_WEB_APPLICATION_TYPE: servlet
+      HTTP_BIND_ADDRESS: 0.0.0.0
+      HTTP_BIND_PORT: 8000
+
+      THINGSBOARD_TOOLS_DEVICE: "true"
+      THINGSBOARD_TOOLS_TELEMETRY: "true"
+      THINGSBOARD_TOOLS_ASSET: "false"
+      THINGSBOARD_TOOLS_CUSTOMER: "false"
+      THINGSBOARD_TOOLS_USER: "false"
+      THINGSBOARD_TOOLS_ALARM: "false"
+      THINGSBOARD_TOOLS_RELATION: "false"
+      THINGSBOARD_TOOLS_OTA: "false"
+      THINGSBOARD_TOOLS_EDQ: "false"
+      THINGSBOARD_TOOLS_GROUP: "false"
 
 volumes:
   graphdb_data:
@@ -78,4 +126,3 @@ volumes:
   neo4j_logs:
   neo4j_plugins:
   thingsboard_postgres_data:
- 
