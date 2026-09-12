@@ -23,25 +23,25 @@ class ProposalSource(StrEnum):
 
 class ProposedAction(BaseModel):
     """The proposed action model"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    action_id: str = Field(min_length=1)
-    room_reference: str = Field(min_length=1)
-    measurement: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    action_id: str 
+    room_reference: str 
+    measurement: str 
     current_value: float
     target_value: float
-    unit: str = Field(min_length=1)
-    actuator_guid: str = Field(min_length=1)
-    actuator_type: str = Field(min_length=1)
-    reason: str = Field(min_length=1)
+    unit: str 
+    actuator_guid: str 
+    actuator_type: str 
+    reason: str 
 
 
 class ActionProposal(BaseModel):
     """The proposal that contains the actions """
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    proposal_id: str = Field(min_length=1)
-    room_reference: str = Field(min_length=1)
-    actions: tuple[ProposedAction, ...] = Field(min_length=1)
-    rationale: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    proposal_id: str 
+    room_reference: str 
+    actions: tuple[ProposedAction, ...] 
+    rationale: str 
     status: ProposalStatus
     comfort_assessment: ComfortAssessment
     created_at_ms: int
@@ -52,7 +52,7 @@ class ActionProposal(BaseModel):
 
 class PlanningResult(BaseModel):
     """The planning result"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     comfort_assessment: ComfortAssessment
     proposal: ActionProposal | None
-    message: str = Field(min_length=1)
+    message: str 

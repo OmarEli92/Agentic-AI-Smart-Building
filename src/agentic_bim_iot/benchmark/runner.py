@@ -6,7 +6,7 @@ from uuid import uuid4
 from agentic_bim_iot.benchmark.models import BenchmarkMode, BenchmarkRunReport, BenchmarkScenario, BenchmarkStep, BenchmarkStepResult, BenchmarkStepStatus, BenchmarkSuite
 from agentic_bim_iot.bootstrap import create_application
 from agentic_bim_iot.config.settings import Settings
-from agentic_bim_iot.infrastracture.observability.runtime import ObservabilityRuntime
+from agentic_bim_iot.infrastructure.observability.runtime import ObservabilityRuntime
 
 
 class BenchmarkRunner:

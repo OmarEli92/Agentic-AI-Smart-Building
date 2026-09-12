@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 from agentic_bim_iot.domain.actuator import ActuatorReference
-from agentic_bim_iot.infrastracture.semantic.graphdb.graph_store import SPARQLResult
+from agentic_bim_iot.infrastructure.semantic.graphdb.graph_store import SPARQLResult
 
 
 def _normalize_measurements(measurements: Sequence[str]) -> tuple[str, ...]:

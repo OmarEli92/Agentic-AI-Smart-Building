@@ -1,6 +1,6 @@
 from agentic_bim_iot.config.settings import get_settings
-from agentic_bim_iot.infrastracture.llm.supervisor import LLMSupervisor
-from agentic_bim_iot.infrastracture.llm.factory import create_chat_model
+from agentic_bim_iot.infrastructure.llm.supervisor import LLMSupervisor
+from agentic_bim_iot.infrastructure.llm.factory import create_chat_model
 
 def main() -> None:
     settings = get_settings()

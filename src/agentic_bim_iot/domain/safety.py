@@ -11,8 +11,8 @@ class SafetyValidationStatus(StrEnum):
 
 class SafetyValidationResult(BaseModel):
     """The result of safety validation"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     status: SafetyValidationStatus
     commands: tuple[ActuationCommand, ...]
     violations: tuple[str, ...]
-    message: str = Field(min_length=1)
+    message: str 

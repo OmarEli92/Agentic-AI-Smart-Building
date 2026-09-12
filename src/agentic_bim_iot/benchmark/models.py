@@ -20,9 +20,9 @@ class BenchmarkStepStatus(StrEnum):
 
 class BenchmarkStep(BaseModel):
     """The benchmark step  """
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    step_id: str = Field(min_length=1)
-    query: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    step_id: str 
+    query: str 
     expected_intent: str | None = None
     expected_route: str | None = None
     metadata: dict[str, object] = Field(default_factory=dict)
@@ -30,25 +30,25 @@ class BenchmarkStep(BaseModel):
 
 class BenchmarkScenario(BaseModel):
     """The scenario whcih contains the steps, category and description of it """
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    scenario_id: str = Field(min_length=1)
-    category: str = Field(min_length=1)
-    description: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    scenario_id: str 
+    category: str 
+    description: str 
     steps: tuple[BenchmarkStep, ...]
 
 
 class BenchmarkSuite(BaseModel):
     """The suite aka the pipeline that contains the scenarios and the phase"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    suite_id: str = Field(min_length=1)
-    description: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    suite_id: str 
+    description: str 
     phase: str = Field(default="baseline", min_length=1)
     scenarios: tuple[BenchmarkScenario, ...]
 
 
 class BenchmarkStepResult(BaseModel):
     """THe benchmark step result"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     benchmark_id: str
     suite_id: str
     scenario_id: str
@@ -71,7 +71,7 @@ class BenchmarkStepResult(BaseModel):
 
 class BenchmarkRunReport(BaseModel):
     """The report that contains theresults of the steps """
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     benchmark_id: str
     suite_id: str
     suite_sha256: str

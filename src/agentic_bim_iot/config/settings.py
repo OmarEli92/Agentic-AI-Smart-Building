@@ -52,7 +52,12 @@ class ThingsBoardIntegration(StrEnum):
     REST = "rest"
     MCP = "mcp"    
    
+
+class ThingsBoardActuationBackend(StrEnum):
+    TELEMETRY = "telemetry"
+    RPC = "rpc"
     
+
 class Settings(BaseSettings):
     """This class represents the basic settings configuration for the application
     it can be loaded from the .env file locally or inside Docker"""   
@@ -85,19 +90,16 @@ class Settings(BaseSettings):
     
     llm_max_tokens: int = Field(
         default=2048,
-        gt=0,
         validation_alias="LLM_MAX_TOKENS"
     )
     
     llm_max_retries: int = Field(
         default=2,
-        ge=0,
         validation_alias="LLM_MAX_RETRIES"
     )
     
     llm_timeout_seconds: float = Field(
         default=60.0,
-        gt=0,
         validation_alias="LLM_TIMEOUT_SECONDS"
     )
     #The Bim sources
@@ -123,30 +125,17 @@ class Settings(BaseSettings):
         validation_alias="GRAPHDB_REPOSITORY"
     )
     
-    graphdb_username: str | None = Field(
-        default=None,
-        validation_alias="GRAPHDB_USERNAME"
-    )
-
-    graphdb_password: SecretStr | None = Field(
-        default=None,
-        validation_alias="GRAPHDB_PASSWORD"
-    )
+    graphdb_username: str | None = Field(validation_alias="GRAPHDB_USERNAME")
+    graphdb_password: SecretStr | None = Field(validation_alias="GRAPHDB_PASSWORD")
+    
     # Neo4j
     neo4j_uri: str = Field(
         default="neo4j://localhost:7687",
         validation_alias="NEO4J_URI"
     )
 
-    neo4j_username: str | None = Field(
-        default=None,
-        validation_alias="NEO4J_USERNAME"
-    )
-
-    neo4j_password: SecretStr | None = Field(
-        default=None,
-        validation_alias="NEO4J_PASSWORD"
-    )
+    neo4j_username: str | None = Field(validation_alias="NEO4J_USERNAME")
+    neo4j_password: SecretStr | None = Field(validation_alias="NEO4J_PASSWORD")
 
     neo4j_database: str = Field(
         default="neo4j",
@@ -155,19 +144,16 @@ class Settings(BaseSettings):
 
     graphdb_max_repair_retries: int = Field(
         default=2,
-        ge=0,
         validation_alias="GRAPHDB_MAX_REPAIR_RETRIES"
     )
 
     graphdb_timeout_seconds: float = Field(
         default=30.0,
-        gt=0,
         validation_alias="GRAPHDB_TIMEOUT_SECONDS"
     )
     
     neo4j_timeout_seconds: float = Field(
         default=30.0,
-        gt=0,
         validation_alias="NEO4J_TIMEOUT_SECONDS"
     )
     graphdb_ontology_path: str = Field(
@@ -177,7 +163,6 @@ class Settings(BaseSettings):
     
     semantic_max_execution_repair_retries: int = Field(
         default=2,
-        ge=0,
         validation_alias=("SEMANTIC_MAX_EXECUTION_REPAIR_RETRIES")
     )
     
@@ -203,21 +188,10 @@ class Settings(BaseSettings):
         validation_alias="THINGSBOARD_URL"
     )
 
-    thingsboard_api_key: SecretStr | None = Field(
-        default=None,
-        validation_alias="THINGSBOARD_API_KEY"
-    )
+    thingsboard_api_key: SecretStr | None = Field(validation_alias="THINGSBOARD_API_KEY")
+    thingsboard_username: str | None = Field(validation_alias="THINGSBOARD_USERNAME")
+    thingsboard_password: SecretStr | None = Field(validation_alias="THINGSBOARD_PASSWORD")    
 
-    thingsboard_username: str | None = Field(
-        default=None,
-        validation_alias="THINGSBOARD_USERNAME"
-    )
-
-    thingsboard_password: SecretStr | None = Field(
-        default=None,
-        validation_alias="THINGSBOARD_PASSWORD"
-    )    
-    
     thingsboard_integration: ThingsBoardIntegration = Field(
         default=ThingsBoardIntegration.REST,
         validation_alias="THINGSBOARD_INTEGRATION"
@@ -230,9 +204,25 @@ class Settings(BaseSettings):
 
     thingsboard_mcp_timeout_seconds: float = Field(
         default=30.0,
-        gt=0,
         validation_alias="THINGSBOARD_MCP_TIMEOUT_SECONDS"
     )
+    
+    thingsboard_actuation_backend: ThingsBoardActuationBackend = Field(
+        default=ThingsBoardActuationBackend.TELEMETRY,
+        validation_alias="THINGSBOARD_ACTUATION_BACKEND",
+    )
+
+    actuator_rpc_profile_path: str = Field(
+        default="resources/config/actuator_rpc_profile.yaml",
+        validation_alias="ACTUATOR_RPC_PROFILE_PATH",
+    )
+
+    thingsboard_rpc_request_timeout_seconds: float = Field(
+        default=30.0,
+        validation_alias="THINGSBOARD_RPC_REQUEST_TIMEOUT_SECONDS",
+    )
+        
+    
     #Observability and logging
     
     observability_backend: ObservabilityBackend = Field(

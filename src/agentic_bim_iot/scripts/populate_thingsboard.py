@@ -8,9 +8,9 @@ from tb_ce_client.exceptions import ApiException
 
 from agentic_bim_iot.config.settings import get_settings
 from agentic_bim_iot.domain.sensor import SensorReference
-from agentic_bim_iot.infrastracture.thingsboard.device_registry import ThingsBoardDeviceRegistry
-from agentic_bim_iot.infrastracture.thingsboard.factory import create_thingsboard_client
-from agentic_bim_iot.infrastracture.thingsboard.telemetry_keys import measurement_to_telemetry_key
+from agentic_bim_iot.infrastructure.thingsboard.device_registry import ThingsBoardDeviceRegistry
+from agentic_bim_iot.infrastructure.thingsboard.factory import create_thingsboard_client
+from agentic_bim_iot.infrastructure.thingsboard.telemetry_keys import measurement_to_telemetry_key
 
 
 SRC_DIR = Path(__file__).resolve().parents[3]

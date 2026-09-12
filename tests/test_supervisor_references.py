@@ -1,7 +1,7 @@
 from agentic_bim_iot.application.supervisor.reference_guard import extract_explicit_room_reference
 from agentic_bim_iot.domain.enums import Intent, Route
 from agentic_bim_iot.domain.models import SupervisorDecision
-from agentic_bim_iot.infrastracture.llm.supervisor import LLMSupervisor
+from agentic_bim_iot.infrastructure.llm.supervisor import LLMSupervisor
 
 
 def test_extracts_kitchen_from_comfort_request() -> None:

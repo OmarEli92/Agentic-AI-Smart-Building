@@ -29,7 +29,7 @@ class ComfortLabel(StrEnum):
 
 
 class ParameterComfortAssessment(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     measurement: str
     value: float | None
     unit: str
@@ -42,7 +42,7 @@ class ParameterComfortAssessment(BaseModel):
 
 
 class ComfortAssessment(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     room_reference: str
     total_score: int
     label: ComfortLabel

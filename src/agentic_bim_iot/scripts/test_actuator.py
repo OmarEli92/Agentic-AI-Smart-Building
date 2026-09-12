@@ -1,8 +1,8 @@
 from contextlib import ExitStack
 
 from agentic_bim_iot.config.settings import get_settings
-from agentic_bim_iot.infrastracture.llm.factory import create_chat_model
-from agentic_bim_iot.infrastracture.semantic.factory import create_semantic_services
+from agentic_bim_iot.infrastructure.llm.factory import create_chat_model
+from agentic_bim_iot.infrastructure.semantic.factory import create_semantic_services
 
 
 def main() -> None:

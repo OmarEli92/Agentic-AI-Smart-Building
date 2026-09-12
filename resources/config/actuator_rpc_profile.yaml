@@ -1,0 +1,14 @@
+version: 1
+actuator_types:
+  RadiatorActuator:
+    measurements:
+      temperature:
+        operations:
+          set_value:
+            method: setTemperature
+            params:
+              value: "$target_value"
+            timeout_ms: 10000
+            response:
+              success_path: success
+              success_equals: true

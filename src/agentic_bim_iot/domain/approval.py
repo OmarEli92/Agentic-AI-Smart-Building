@@ -1,7 +1,5 @@
 from enum import StrEnum
-
 from pydantic import BaseModel, ConfigDict, Field
-
 from agentic_bim_iot.domain.comfort import ComfortAssessment
 from agentic_bim_iot.domain.proposal import ActionProposal
 
@@ -19,8 +17,8 @@ class ApprovalOutcome(StrEnum):
 
 class ApprovalResult(BaseModel):
     """The result of the proposal"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     outcome: ApprovalOutcome
     proposal: ActionProposal | None
     current_comfort_assessment: ComfortAssessment | None
-    message: str = Field(min_length=1)
+    message: str 

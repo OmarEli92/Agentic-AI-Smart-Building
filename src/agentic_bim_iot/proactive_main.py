@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 
 from agentic_bim_iot.bootstrap import create_runtime
 from agentic_bim_iot.config.settings import get_settings
-from agentic_bim_iot.infrastracture.observability.logging_config import configure_application_logging
-from agentic_bim_iot.infrastracture.observability.runtime import ObservabilityRuntime
+from agentic_bim_iot.infrastructure.observability.logging_config import configure_application_logging
+from agentic_bim_iot.infrastructure.observability.runtime import ObservabilityRuntime
 
 
 def main():

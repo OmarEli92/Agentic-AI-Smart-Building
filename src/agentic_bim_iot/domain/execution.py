@@ -1,5 +1,6 @@
 from enum import StrEnum
-from pydantic import BaseModel, ConfigDict, Field
+from typing import Any
+from pydantic import BaseModel, ConfigDict
 
 
 class ExecutionStatus(StrEnum):
@@ -15,24 +16,26 @@ class ExecutionBatchStatus(StrEnum):
 
 class ExecutionResult(BaseModel):
     """The execution result of a proposal"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    execution_id: str = Field(min_length=1)
-    command_id: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    execution_id: str 
+    command_id: str 
     proposal_id: str | None = None
-    room_reference: str = Field(min_length=1)
-    measurement: str = Field(min_length=1)
-    actuator_guid: str = Field(min_length=1)
+    room_reference: str 
+    measurement: str 
+    actuator_guid: str 
     thingsboard_device_id: str | None = None
     target_value: float
-    unit: str = Field(min_length=1)
+    unit: str 
     status: ExecutionStatus
     started_at_ms: int
     completed_at_ms: int
     error: str | None = None
+    rpc_method: str | None = None
+    rpc_response: Any | None = None
 
 
 class ExecutionBatchResult(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     status: ExecutionBatchStatus
-    executions: tuple[ExecutionResult, ...]
-    message: str = Field(min_length=1)
+    executions: list[ExecutionResult]
+    message: str 

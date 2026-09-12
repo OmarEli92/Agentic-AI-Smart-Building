@@ -21,15 +21,15 @@ class CommandStructuringStatus(StrEnum):
 
 class ActuationCommand(BaseModel):
     """The actuation command"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    command_id: str = Field(min_length=1)
-    room_reference: str = Field(min_length=1)
-    measurement: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    command_id: str 
+    room_reference: str 
+    measurement: str 
     operation: ActuationOperation
     target_value: float
-    unit: str = Field(min_length=1)
-    actuator_guid: str = Field(min_length=1)
-    actuator_type: str = Field(min_length=1)
+    unit: str 
+    actuator_guid: str 
+    actuator_type: str 
     authorization_source: CommandAuthorizationSource
     proposal_id: str | None = None
     source_action_id: str | None = None
@@ -38,7 +38,7 @@ class ActuationCommand(BaseModel):
 
 class CommandStructuringResult(BaseModel):
     """The acutal result of the command"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(frozen=True)
     status: CommandStructuringStatus
     commands: tuple[ActuationCommand, ...]
-    message: str = Field(min_length=1)
+    message: str 

@@ -15,14 +15,14 @@ class NotificationStatus(StrEnum):
 
 class Notification(BaseModel):
     """The Notification class  """
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    notification_id: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    notification_id: str 
     notification_type: NotificationType
     status: NotificationStatus
-    room_reference: str = Field(min_length=1)
+    room_reference: str 
     proposal_id: str | None = None
-    title: str = Field(min_length=1)
-    message: str = Field(min_length=1)
+    title: str 
+    message: str 
     created_at_ms: int
     read_at_ms: int | None = None
     resolved_at_ms: int | None = None

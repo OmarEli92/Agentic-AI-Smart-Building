@@ -15,10 +15,10 @@ class ProactiveCheckStatus(StrEnum):
 
 class ProactiveCheckResult(BaseModel):
     """The result of the proactive check result"""
-    model_config = ConfigDict(extra="forbid", frozen=True)
-    room_reference: str = Field(min_length=1)
+    model_config = ConfigDict(frozen=True)
+    room_reference: str 
     status: ProactiveCheckStatus
     comfort_label: str | None = None
     comfort_score: int | None = None
     proposal_id: str | None = None
-    message: str = Field(min_length=1)
+    message: str 

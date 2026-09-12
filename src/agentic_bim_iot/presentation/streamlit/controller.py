@@ -5,7 +5,7 @@ from uuid import uuid4
 from agentic_bim_iot.bootstrap import ApplicationRuntime
 from agentic_bim_iot.domain.notification import Notification
 from agentic_bim_iot.domain.proposal import ActionProposal
-from agentic_bim_iot.infrastracture.observability.runtime import ObservabilityRuntime
+from agentic_bim_iot.infrastructure.observability.runtime import ObservabilityRuntime
 
 
 @dataclass(slots=True, frozen=True)

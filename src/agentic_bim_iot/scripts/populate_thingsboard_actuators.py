@@ -4,9 +4,9 @@ from pathlib import Path
 from rdflib import Graph, Namespace, RDF, RDFS, URIRef
 from agentic_bim_iot.config.settings import get_settings
 from agentic_bim_iot.domain.actuator import ActuatorReference
-from agentic_bim_iot.infrastracture.semantic.actuator.profile import BOP_ACTUATOR_ONTOLOGY_PROFILE
-from agentic_bim_iot.infrastracture.thingsboard.actuator_device_registry import ThingsBoardActuatorDeviceRegistry
-from agentic_bim_iot.infrastracture.thingsboard.factory import create_thingsboard_client
+from agentic_bim_iot.infrastructure.semantic.actuator.profile import BOP_ACTUATOR_ONTOLOGY_PROFILE
+from agentic_bim_iot.infrastructure.thingsboard.actuator_device_registry import ThingsBoardActuatorDeviceRegistry
+from agentic_bim_iot.infrastructure.thingsboard.factory import create_thingsboard_client
 
 
 BOP = Namespace("https://w3id.org/bop#")

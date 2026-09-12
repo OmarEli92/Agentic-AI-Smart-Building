@@ -32,28 +32,14 @@ class ComfortEngineNode:
             ComfortEngineNode._format_parameter(parameter)
             for parameter in assessment.parameters.values()
         ]
-
+        warning_text = "."
         if not assessment.data_complete:
             missing = ", ".join(assessment.missing_measurements)
-            return (
-                f"The comfort assessment for "
-                f"{assessment.room_reference} is "
-                f"{assessment.label.value} "
-                f"with a score of "
-                f"{assessment.total_score:+d}/3, "
-                f"but the assessment is based on "
-                f"incomplete data. "
-                f"Missing measurements: {missing}. "
-                + " ".join(parameter_messages)
-            )
-
+            warning_text = f", but the assessment is based on incomplete data. Missing measurements: {missing}."
+        params_text = " ".join(parameter_messages)
         return (
-            f"The comfort assessment for "
-            f"{assessment.room_reference} is "
-            f"{assessment.label.value} "
-            f"with a score of "
-            f"{assessment.total_score:+d}/3. "
-            + " ".join(parameter_messages)
+            f"The comfort assessment for {assessment.room_reference} is {assessment.label.value} "
+            f"with a score of {assessment.total_score:+d}/3{warning_text} {params_text}"
         )
 
     @staticmethod

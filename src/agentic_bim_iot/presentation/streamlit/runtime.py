@@ -2,7 +2,7 @@ import atexit
 from threading import RLock
 from agentic_bim_iot.bootstrap import ApplicationRuntime, create_runtime
 from agentic_bim_iot.config.settings import Settings
-from agentic_bim_iot.infrastracture.observability.runtime import ObservabilityRuntime
+from agentic_bim_iot.infrastructure.observability.runtime import ObservabilityRuntime
 
 
 class StreamlitRuntimeHolder:

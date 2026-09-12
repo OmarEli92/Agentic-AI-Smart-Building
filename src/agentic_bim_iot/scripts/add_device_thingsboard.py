@@ -5,11 +5,11 @@ from tb_ce_client.exceptions import NotFoundException
 from tb_ce_client.models import Device
 
 from agentic_bim_iot.config.settings import get_settings
-from agentic_bim_iot.infrastracture.llm.factory import create_chat_model
-from agentic_bim_iot.infrastracture.semantic.factory import (
+from agentic_bim_iot.infrastructure.llm.factory import create_chat_model
+from agentic_bim_iot.infrastructure.semantic.factory import (
     create_semantic_services,
 )
-from agentic_bim_iot.infrastracture.thingsboard.factory import (
+from agentic_bim_iot.infrastructure.thingsboard.factory import (
     create_thingsboard_client,
 )
 
