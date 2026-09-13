@@ -10,7 +10,8 @@ from agentic_bim_iot.application.interfaces.notification_repository import Notif
 from agentic_bim_iot.application.interfaces.planning import PlanningEngine
 from agentic_bim_iot.application.interfaces.proposal_repository import ProposalRepository
 from agentic_bim_iot.application.interfaces.room_catalog import RoomCatalog
-from agentic_bim_iot.config.settings import Settings, get_settings
+from agentic_bim_iot.application.react_agent.builder import build
+from agentic_bim_iot.config.settings import AgentOrchestration, Settings, get_settings
 from agentic_bim_iot.infrastructure.approval.handler import ProposalApprovalHandler
 from agentic_bim_iot.infrastructure.cache.actuator_resolver import CachedActuatorResolver
 from agentic_bim_iot.infrastructure.cache.factory import create_bim_cache_store
@@ -102,10 +103,18 @@ def create_runtime(settings: Settings | None = None) -> Iterator[ApplicationRunt
             command_structurer=command_structurer,
             safety_validator=safety_validator,
             actuation_service=actuation_service,
-            execution_repository=execution_repository,
+            execution_repository=execution_repository
         )
 
-        graph = build_agent_graph(dependencies=dependencies)
+        if (resolved_settings.agent_orchestration == AgentOrchestration.WORKFLOW):
+            graph = build_agent_graph(dependencies=dependencies)
+        elif (resolved_settings.agent_orchestration == AgentOrchestration.FULL_REACT):
+            graph = build(chat_model=supervisor_model, dependencies=dependencies,
+                          recursion_limit=(resolved_settings.full_react_recursion_limit),
+                          model_call_limit=(resolved_settings.full_react_model_call_limit),
+                          tool_call_limit=(resolved_settings.full_react_tool_call_limit))
+        else:
+            raise ValueError(f"Unsupported agent orchestration: {resolved_settings.agent_orchestration}")
 
         yield ApplicationRuntime(
             graph=graph,

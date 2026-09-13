@@ -42,7 +42,8 @@ def main():
                             config={
                                 "callbacks": trace.callbacks,
                                 "run_name": "agentic-smart-building-graph",
-                                "metadata": {"request_id": request_id},
+                                "metadata": {"request_id": request_id, "session_id": session_id,},
+                                "configurable": {"thread_id": session_id}
                             }
                         )
                         final_answer = result.get("final_answer", "")

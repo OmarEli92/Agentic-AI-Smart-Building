@@ -46,6 +46,7 @@ class StreamlitController:
                         config={
                             "callbacks": trace.callbacks,
                             "run_name": "agentic-smart-building-graph",
+                            "configurable": {"thread_id": self._session_id},
                             "metadata": {
                                 "request_id": request_id,
                                 "ui_session_id": self._session_id,

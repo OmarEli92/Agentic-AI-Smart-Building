@@ -155,6 +155,7 @@ class BenchmarkRunner:
                     config={
                         "callbacks": trace.callbacks,
                         "run_name": "agentic-smart-building-graph",
+                        "configurable": {"thread_id": session_id},
                         "metadata": {
                             "request_id": request_id,
                             "benchmark_id": benchmark_id,

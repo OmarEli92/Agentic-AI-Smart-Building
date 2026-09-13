@@ -5,6 +5,15 @@ from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+
+class AgentOrchestration(StrEnum):
+    """ There are two different roads to choose a full workflow configuration
+    where the strategy is to used the LLM when is needed or use a ReAct configuration in which the
+    LLM reason and pick the tool that it needs 
+    """
+
+    WORKFLOW = "workflow"
+    FULL_REACT = "full_react"
 class LLMProvider(StrEnum):
     """The LLM provider supported by the application.
     The provider is only a configuration detail since i will be using
@@ -39,8 +48,7 @@ class EvaluationFramework(StrEnum):
     DEEPEVAL = "deepeval"
     RAGAS = "ragas"
     
-    
-    
+     
 class BIMCacheBackend(StrEnum):
     """The cache in the system"""
     NONE = "none"
@@ -72,7 +80,7 @@ class Settings(BaseSettings):
         default="development",
         validation_alias="APP_ENV"
     )
-    #LLM
+#LLM
     llm_provider: LLMProvider = Field(
         default= LLMProvider.GROQ,
         validation_alias="LLM_PROVIDER"
@@ -102,7 +110,32 @@ class Settings(BaseSettings):
         default=60.0,
         validation_alias="LLM_TIMEOUT_SECONDS"
     )
-    #The Bim sources
+    
+#Agent orchestration    
+    agent_orchestration: AgentOrchestration = Field(
+        default=AgentOrchestration.WORKFLOW,
+        validation_alias="AGENT_ORCHESTRATION",
+    )
+
+    full_react_recursion_limit: int = Field(
+        default=30,
+        ge=5,
+        validation_alias="FULL_REACT_RECURSION_LIMIT",
+    )
+    
+    full_react_model_call_limit: int = Field(
+        default=6,
+        ge=2,
+        validation_alias="FULL_REACT_MODEL_CALL_LIMIT",
+    )
+
+    full_react_tool_call_limit: int = Field(
+        default=8,
+        ge=1,
+        validation_alias="FULL_REACT_TOOL_CALL_LIMIT",
+    )
+    
+#The Bim sources
     semantic_backend: SemanticBackend = Field(
         default=SemanticBackend.GRAPHDB,
         validation_alias="SEMANTIC_BACKEND"
@@ -114,7 +147,7 @@ class Settings(BaseSettings):
     )
 
  
-    # GraphDB
+# GraphDB
     graphdb_url: str = Field(
         default="http://localhost:7200/",
         validation_alias="GRAPHDB_URL"
@@ -128,7 +161,21 @@ class Settings(BaseSettings):
     graphdb_username: str | None = Field(validation_alias="GRAPHDB_USERNAME")
     graphdb_password: SecretStr | None = Field(validation_alias="GRAPHDB_PASSWORD")
     
-    # Neo4j
+    graphdb_max_repair_retries: int = Field(
+        default=2,
+        validation_alias="GRAPHDB_MAX_REPAIR_RETRIES"
+    )
+
+    graphdb_timeout_seconds: float = Field(
+        default=30.0,
+        validation_alias="GRAPHDB_TIMEOUT_SECONDS"
+    )
+    
+    graphdb_ontology_path: str = Field(
+        default="resources/ontology/openSmartHome_Donkers_v2.ttl",
+        validation_alias="GRAPHDB_ONTOLOGY_PATH"
+    )
+# Neo4j
     neo4j_uri: str = Field(
         default="neo4j://localhost:7687",
         validation_alias="NEO4J_URI"
@@ -141,31 +188,19 @@ class Settings(BaseSettings):
         default="neo4j",
         validation_alias="NEO4J_DATABASE"
     )
-
-    graphdb_max_repair_retries: int = Field(
-        default=2,
-        validation_alias="GRAPHDB_MAX_REPAIR_RETRIES"
-    )
-
-    graphdb_timeout_seconds: float = Field(
-        default=30.0,
-        validation_alias="GRAPHDB_TIMEOUT_SECONDS"
-    )
     
     neo4j_timeout_seconds: float = Field(
         default=30.0,
         validation_alias="NEO4J_TIMEOUT_SECONDS"
     )
-    graphdb_ontology_path: str = Field(
-        default="resources/ontology/openSmartHome_Donkers_v2.ttl",
-        validation_alias="GRAPHDB_ONTOLOGY_PATH"
-    )
+    
     
     semantic_max_execution_repair_retries: int = Field(
         default=2,
         validation_alias=("SEMANTIC_MAX_EXECUTION_REPAIR_RETRIES")
     )
     
+#Proposal  and execution  
     proposal_database_path: str = Field(
         default="data/proposals.db",
         validation_alias="PROPOSAL_DATABASE_PATH"
@@ -182,7 +217,7 @@ class Settings(BaseSettings):
         validation_alias="EXECUTION_DATABASE_PATH"
     )
     
-    #Thingsboard
+#Thingsboard
     thingsboard_url: str = Field(
         default="http://localhost:8080",
         validation_alias="THINGSBOARD_URL"
@@ -223,7 +258,7 @@ class Settings(BaseSettings):
     )
         
     
-    #Observability and logging
+#Observability and logging
     
     observability_backend: ObservabilityBackend = Field(
         default=ObservabilityBackend.NONE,
@@ -247,7 +282,7 @@ class Settings(BaseSettings):
     )
     
     
-    #Cache
+#Cache
     bim_cache_backend: BIMCacheBackend = Field(
         default=BIMCacheBackend.NONE,
         validation_alias="BIM_CACHE_BACKEND",
@@ -278,7 +313,7 @@ class Settings(BaseSettings):
         default=True,
         validation_alias="BIM_CACHE_FAIL_OPEN",
     )
-    
+#proactive agent
     proactive_comfort_enabled: bool = Field(
         default=False,
         validation_alias="PROACTIVE_COMFORT_ENABLED",
@@ -306,7 +341,7 @@ class Settings(BaseSettings):
         validation_alias="NOTIFICATION_DATABASE_PATH",
     )
     
-    #Streamlit
+#Streamlit
     streamlit_page_title: str = Field(
         default="Agentic Smart Building",
         validation_alias="STREAMLIT_PAGE_TITLE",
