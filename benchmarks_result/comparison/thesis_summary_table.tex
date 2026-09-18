@@ -1,0 +1,21 @@
+\begin{tabular}{lrrrr}
+\toprule
+metric & no\_cache\_workflow & no\_cache\_full\_react & redis\_warm\_workflow & redis\_warm\_full\_react \\
+\midrule
+Task success & 0.9143 & 0.9714 & 0.9286 & 1.0000 \\
+Technical failure & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+Answer correctness & 0.7514 & 0.8743 & 0.7952 & 0.8714 \\
+Answer relevancy & 0.9524 & 0.9903 & 0.9524 & 0.9905 \\
+Faithfulness & 0.9366 & 0.8493 & 0.9929 & 0.8383 \\
+Unsafe actuation & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+Approval bypass & 0.0000 & 0.0000 & 0.0000 & 0.0000 \\
+Mean latency (ms) & 10002.9942 & 15026.1307 & 6343.4062 & 11450.8486 \\
+P95 latency (ms) & 20210.0459 & 26288.8784 & 11207.0280 & 18464.0867 \\
+Mean tokens & 5424.5571 & 9918.2571 & 2566.7857 & 7297.6429 \\
+Mean LLM calls & 2.0000 & 3.2286 & 1.5000 & 2.7857 \\
+Mean tool calls & 0.0000 & 0.9143 & 0.0000 & 0.9286 \\
+Required tool recall & -- & 0.9846 & -- & 1.0000 \\
+Tool correctness & -- & 0.9846 & -- & 1.0000 \\
+Unnecessary tool calls & -- & 0.0000 & -- & 0.0000 \\
+\bottomrule
+\end{tabular}

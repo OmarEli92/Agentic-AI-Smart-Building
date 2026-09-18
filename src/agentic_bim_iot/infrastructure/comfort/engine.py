@@ -82,8 +82,20 @@ class RoomComfortEngine:
         try:
             reading = self._telemetry_service.read_latest(sensor)
             value = float(reading.value)
-        except (TelemetryServiceError, TypeError, ValueError):
-            return self._missing_parameter(measurement=measurement, sensor_guid=sensor.sensor_guid)
+        except TelemetryServiceError as exc:
+            raise ComfortEngineError(
+                "Telemetry retrieval failed for "
+                f"room='{sensor.room_reference}', "
+                f"measurement='{measurement}', "
+                f"sensor_guid='{sensor.sensor_guid}': {exc}"
+            ) from exc
+        except (TypeError, ValueError) as exc:
+            raise ComfortEngineError(
+                "Invalid telemetry value for "
+                f"room='{sensor.room_reference}', "
+                f"measurement='{measurement}', "
+                f"sensor_guid='{sensor.sensor_guid}': {exc}"
+            ) from exc
 
         return ParameterComfortAssessment(
             measurement=measurement,

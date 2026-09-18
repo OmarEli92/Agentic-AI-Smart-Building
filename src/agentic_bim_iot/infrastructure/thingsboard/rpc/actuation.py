@@ -18,7 +18,7 @@ from agentic_bim_iot.infrastructure.thingsboard.rpc.profile import ActuatorRpcPr
 
 class ThingsBoardRpcActuationService(ActuationService):
     """This class is responsible for the execution of actuator commands through ThingsBoard.
-    To be more precise it only implements the TWO-WAY server side RPC,
+    To be more precise it only implements the TWO WAY server side RPC,
     so after the command is sent a response should be received so that
     we know the command was executed.
     """

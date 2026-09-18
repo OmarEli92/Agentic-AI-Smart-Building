@@ -109,6 +109,7 @@ class SQLiteExecutionRepository:
             raise ExecutionRepositoryError(f"Could not retrieve proposal executions: {exc}") from exc
         return [ExecutionResult.model_validate_json(row[0]) for row in rows]
 
+
     def _get_one(self, query: str, parameters: tuple[object, ...]) -> ExecutionResult | None:
         try:
             with self._lock:

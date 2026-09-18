@@ -1,8 +1,6 @@
 from collections.abc import Sequence
-
 from deepeval.metrics import ExactMatchMetric
 from deepeval.test_case import LLMTestCase
-
 from agentic_bim_iot.evaluation.models import EvaluationCaseResult, EvaluationReport, EvaluationSample, EvaluationScore
 
 
