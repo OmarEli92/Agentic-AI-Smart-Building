@@ -151,7 +151,7 @@ activemq-data/
 .env
 .envrc
 .venv
-.venv_broken_20260915
+.venv_broken_20260915/
 env/
 venv/
 ENV/
@@ -220,7 +220,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-data
+data/
 
 .deepeval
 benchmark_result/runtime/*
