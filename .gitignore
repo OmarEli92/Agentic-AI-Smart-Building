@@ -157,8 +157,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.env.*
-!.env.example
+.env.cache
+.env.langfuse
 
 # Spyder project settings
 .spyderproject
